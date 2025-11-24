@@ -1,0 +1,325 @@
+{
+  "name": "Assignment Evaluation",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {
+          "download": true
+        }
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -688,
+        -48
+      ],
+      "id": "f36f8278-1693-447e-bebe-0fa4e0ea73ca",
+      "name": "Telegram Trigger",
+      "webhookId": "75662d23-fe1b-4a53-ac33-cdd4fd9a77db",
+      "credentials": {
+        "telegramApi": {
+          "id": "VMLt6yYCUiGlQtSM",
+          "name": "Telegram account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "outputPrefix": "data"
+      },
+      "type": "n8n-nodes-base.compression",
+      "typeVersion": 1.1,
+      "position": [
+        -528,
+        -48
+      ],
+      "id": "c7152b59-2a88-49f0-8ca8-13f2720bdaf7",
+      "name": "Compression"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "$binary",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -384,
+        -48
+      ],
+      "id": "7fa2ae3f-ffe4-4445-8a63-a7984dafc50f",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "binaryPropertyName": "={{ $binary.keys()[0]}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        -224,
+        -48
+      ],
+      "id": "4223b81b-f008-49d8-9f10-343772171ae0",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -64,
+        -48
+      ],
+      "id": "e7da0ec3-a2d6-4cc9-bb53-725a004586eb",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You will receive the full text of one student's assignment.\n\nThe text contains Python questions and the student's answers.\nYour tasks:\n1. Detect each question and its corresponding student answer.\n2. For each question, assign a score from 0 to 10.\n3. Calculate the total score (sum first 10 quesstions scores).\n4. Give a short overall feedback summary for the whole assignment.\n\nStudent Name: {{ $json[\"Student Name\"] || \"Unknown\" }}\nModule: {{ $json[\"Module Name\"] || \"Python Module\" }}\n\nAssignment Text:\n<<<ASSIGNMENT_START>>>\n{{ $json.text }}\n<<<ASSIGNMENT_END>>>\n\nNow produce the final evaluation in the EXACT format below (no extra text):\n\nAssignment Evaluation Report\nStudent: <Student Name if there else put \"Unknown Innominion\">\nModule: <decide the \"Module name\" based on all the questions Topic>\n\nQ1 Question : <1st question from text>\nAnswer : <answer under 20 tokens>\nScore: <score for 1st question answer>/10\n\nQ2 Question : <2st question from text>\nAnswer : <answer under 20 tokens>\nScore: <score for 2nd question answer>/10\n\n[Continue like this for for first 10 questions.]\n\nTotal Score: <total_score>/100\nOverall Feedback: <overall_feedback>\n\nNote : give the whole output under 2000tokens only.",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You are a senior Python instructor at Innomatics Research Labs.  Your job is to evaluate student assignments fairly and consistently.  Each assignment contains: - One or more programming questions. - The student's answers to those questions.  Evaluation rules: - For every question, give a score from 0 to 10. - Focus on correctness, logic, code quality, edge cases, and clarity of explanation. - Be strict but fair. Do NOT give full marks unless the answer is clearly perfect. - If the answer is missing or completely wrong, give 0/10.  Your response MUST strictly follow the format requested in the user message. Do not invent questions or answers that are not in the text. Do not add any extra commentary outside the requested format."
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        144,
+        -16
+      ],
+      "id": "369a8fcc-957a-44e6-81bb-8daa7ee04f7a",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        144,
+        224
+      ],
+      "id": "d80324b4-e5c0-4504-bd0c-aaf320de2e72",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "uurWfr4gSzawzG4O",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        464,
+        0
+      ],
+      "id": "71fad657-9366-4d80-868a-d8bb5cd12649",
+      "name": "Send a text message",
+      "webhookId": "6e089e78-4908-409f-b3b8-90025ce98826",
+      "credentials": {
+        "telegramApi": {
+          "id": "VMLt6yYCUiGlQtSM",
+          "name": "Telegram account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 10
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        640,
+        16
+      ],
+      "id": "b4bf77bf-138d-4f3f-926b-6da3b49d1ebc",
+      "name": "Wait",
+      "webhookId": "10eabf8a-83ae-4a99-8fb9-26b7199e16b8"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "done",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        272,
+        -176
+      ],
+      "id": "e71fb0bc-7016-4e5a-83d6-ac22c83f64df",
+      "name": "Send a text message1",
+      "webhookId": "11fbfa89-f52a-4cda-a3a8-c4af868357a1",
+      "credentials": {
+        "telegramApi": {
+          "id": "VMLt6yYCUiGlQtSM",
+          "name": "Telegram account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## AI-Driven Assignment Evaluation and Scoring System\n ",
+        "height": 624,
+        "width": 1568,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -752,
+        -224
+      ],
+      "typeVersion": 1,
+      "id": "efe7557e-d8c2-47c9-b3ee-c3f07e11fff1",
+      "name": "Sticky Note"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Compression",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compression": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "Send a text message1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "a615f5e2-d0b2-4c0a-92c3-dd907d2c5e6d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "768a1525221b8a8fea05690f3de600d940218340d770d31aaec6a5389ba0d6a8"
+  },
+  "id": "amGk1f9ZwPYTMfGV",
+  "tags": []
+}
