@@ -2,13 +2,7 @@ n8n – AI-Driven Assignment Evaluation & Scoring System
 
 An automated end-to-end workflow built using n8n to evaluate student assignment PDFs submitted inside a ZIP file. The system extracts text, identifies question–answer pairs, performs AI-based scoring, and delivers a detailed evaluation back to the user—fully automated through Telegram.
 
-<img width="1919" height="927" alt="Assignment evaluation" src="https://github.com/user-attachments/assets/14aa5494-96d4-4334-a45c-7fcad5d828ab" />
-
-
-
-
-
-
+📘 Assignment Evaluation
 🚀 Overview
 
 This workflow allows educators, evaluators, and training institutes to automatically grade assignments submitted in bulk. Students upload a ZIP file via Telegram, and the workflow handles everything from extraction to scoring.
@@ -19,33 +13,33 @@ The system uses Google Gemini / OpenAI models for evaluation and is fully modula
 
 📦 Accepts ZIP files containing any number of PDFs
 
-🔍 Auto-extracts each PDF and converts it to readable text
+🔍 Auto-extracts PDFs and converts them to readable text
 
 🧠 AI-based evaluation using Gemini Chat or OpenAI
 
-🧪 Detects Question–Answer pairs using prompt-based extraction
+🧪 Detects Q&A pairs using prompt-based extraction
 
-📊 Scores each answer (0–10 scale) + calculates total score
+📊 Scores each answer (0–10) + calculates total score
 
-💬 Delivers results on Telegram in a clean, readable format
+💬 Sends evaluation on Telegram in a clean format
 
 🔁 Loop processing for unlimited files
 
-⚡ Fully automated workflow, no manual intervention needed
+⚡ Fully automated, no manual work needed
 
-🛠 Easy to extend (export to Google Sheets, send email, store DB, etc.)
+🛠 Easy to extend (Google Sheets, email, DB, etc.)
 
 🛠 Technologies Used
 
 n8n (No-code automation framework)
 
-Telegram Bot API (User interaction)
+Telegram Bot API
 
-Google Gemini Chat Model / OpenAI GPT (AI scoring & feedback)
+Google Gemini Chat Model / OpenAI GPT
 
-ZIP & PDF modules for extraction and text processing
+ZIP & PDF processing modules
 
-JavaScript Function nodes for custom parsing
+JavaScript Function nodes for data parsing
 
 📥 Setup Instructions
 
@@ -57,29 +51,27 @@ Download the provided .json workflow file
 
 Open n8n
 
-Go to Import → Upload the JSON
+Go to Import → Upload JSON
 
 2️⃣ Configure Credentials
-
 Telegram Bot Token
 
-Create a bot via @BotFather
+Create a bot using @BotFather
 
-Add your token under Telegram API credentials
+Add the token under Telegram API credentials
 
-Gemini/OpenAI API Keys
+Gemini / OpenAI API Keys
 
-Add under HTTP Request / OpenAI / Google AI credentials
+Add your key under:
+
+HTTP Request credentials
+
+or the OpenAI / Google AI node credentials
 
 3️⃣ Enable the Telegram Trigger
 
-After enabling, your bot will start receiving user messages (ZIP uploads).
+After activation, your bot will begin receiving ZIP uploads from users.
 
 4️⃣ Test the System
 
-Send a ZIP file containing one or more PDF assignments to your bot.
-You will receive:
-✔ Extracted Q&A
-✔ Score per question
-✔ Total score
-✔ Final feedback
+Send a ZIP file containing PDFs and receive the full evaluation automatically.
